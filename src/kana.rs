@@ -21,51 +21,31 @@ pub enum Column {
     Wa,
 }
 
-const A_ROW: &str = "あかさたなはまやらわぁがざだばぱゃ";
-const I_ROW: &str = "いきしちにひみりぃぎじぢびぴ";
-const U_ROW: &str = "うくすつぬふむゆるぅぐずづっぶぷゅゔ";
-const E_ROW: &str = "えけせてねへめれぇげぜでべぺ";
-const O_ROW: &str = "おこそとのほもよろをぉごぞどぼぽょ";
-
-const A_COLUMN: &str = "あいうえおぁぃぅぇぉ";
-const KA_COLUMN: &str = "かきくけこがぎぐげご";
-const SA_COLUMN: &str = "さしすせそざじずぜぞ";
-const TA_COLUMN: &str = "たちつてとだぢづでどっ";
-const NA_COLUMN: &str = "なにぬねの";
-const HA_COLUMN: &str = "はひふへほばびぶべぼぱぴぷぺぽ";
-const MA_COLUMN: &str = "まみむめも";
-const YA_COLUMN: &str = "やゆよゃゅょ";
-const RA_COLUMN: &str = "らりるれろ";
-const WA_COLUMN: &str = "わを";
-
-const ROWS: &[(&str, Row)] = &[
-    (A_ROW, Row::A),
-    (I_ROW, Row::I),
-    (U_ROW, Row::U),
-    (E_ROW, Row::E),
-    (O_ROW, Row::O),
-];
-
-const COLUMNS: &[(&str, Column)] = &[
-    (A_COLUMN, Column::A),
-    (KA_COLUMN, Column::Ka),
-    (SA_COLUMN, Column::Sa),
-    (TA_COLUMN, Column::Ta),
-    (NA_COLUMN, Column::Na),
-    (HA_COLUMN, Column::Ha),
-    (MA_COLUMN, Column::Ma),
-    (YA_COLUMN, Column::Ya),
-    (RA_COLUMN, Column::Ra),
-    (WA_COLUMN, Column::Wa),
-];
-
+#[rustfmt::skip]
 pub fn row(c: char) -> Option<Row> {
-    ROWS.iter().find(|(s, _)| s.contains(c)).map(|(_, r)| *r)
+    match c {
+        'あ' | 'か' | 'さ' | 'た' | 'な' | 'は' | 'ま' | 'や' | 'ら' | 'わ' | 'ぁ' | 'が' | 'ざ' | 'だ' | 'ば' | 'ぱ' | 'ゃ' => Some(Row::A),
+        'い' | 'き' | 'し' | 'ち' | 'に' | 'ひ' | 'み' | 'り' | 'ぃ' | 'ぎ' | 'じ' | 'ぢ' | 'び' | 'ぴ' => Some(Row::I),
+        'う' | 'く' | 'す' | 'つ' | 'ぬ' | 'ふ' | 'む' | 'ゆ' | 'る' | 'ぅ' | 'ぐ' | 'ず' | 'づ' | 'っ' | 'ぶ' | 'ぷ' | 'ゅ' | 'ゔ' => Some(Row::U),
+        'え' | 'け' | 'せ' | 'て' | 'ね' | 'へ' | 'め' | 'れ' | 'ぇ' | 'げ' | 'ぜ' | 'で' | 'べ' | 'ぺ' => Some(Row::E),
+        'お' | 'こ' | 'そ' | 'と' | 'の' | 'ほ' | 'も' | 'よ' | 'ろ' | 'を' | 'ぉ' | 'ご' | 'ぞ' | 'ど' | 'ぼ' | 'ぽ' | 'ょ' => Some(Row::O),
+        _ => None,
+    }
 }
 
+#[rustfmt::skip]
 pub fn column(c: char) -> Option<Column> {
-    COLUMNS
-        .iter()
-        .find(|(s, _)| s.contains(c))
-        .map(|(_, col)| *col)
+    match c {
+        'あ' | 'い' | 'う' | 'え' | 'お' | 'ぁ' | 'ぃ' | 'ぅ' | 'ぇ' | 'ぉ' => Some(Column::A),
+        'か' | 'き' | 'く' | 'け' | 'こ' | 'が' | 'ぎ' | 'ぐ' | 'げ' | 'ご' => Some(Column::Ka),
+        'さ' | 'し' | 'す' | 'せ' | 'そ' | 'ざ' | 'じ' | 'ず' | 'ぜ' | 'ぞ' => Some(Column::Sa),
+        'た' | 'ち' | 'つ' | 'て' | 'と' | 'だ' | 'ぢ' | 'づ' | 'で' | 'ど' | 'っ' => Some(Column::Ta),
+        'な' | 'に' | 'ぬ' | 'ね' | 'の' => Some(Column::Na),
+        'は' | 'ひ' | 'ふ' | 'へ' | 'ほ' | 'ば' | 'び' | 'ぶ' | 'べ' | 'ぼ' | 'ぱ' | 'ぴ' | 'ぷ' | 'ぺ' | 'ぽ' => Some(Column::Ha),
+        'ま' | 'み' | 'む' | 'め' | 'も' => Some(Column::Ma),
+        'や' | 'ゆ' | 'よ' | 'ゃ' | 'ゅ' | 'ょ' => Some(Column::Ya),
+        'ら' | 'り' | 'る' | 'れ' | 'ろ' => Some(Column::Ra),
+        'わ' | 'を' => Some(Column::Wa),
+        _ => None,
+    }
 }

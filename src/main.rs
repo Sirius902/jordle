@@ -60,8 +60,12 @@ fn word_tiles(guess: &str, answer: &str) -> [Tile; 4] {
 
     for (i, (g, a)) in guess.chars().zip(answer.chars()).enumerate() {
         if tiles[i] == Tile::Absent {
-            let same_row = kana::row(g) == kana::row(a);
-            let same_column = kana::column(g) == kana::column(a);
+            let same_row = kana::row(g)
+                .zip(kana::row(a))
+                .map_or(false, |(r1, r2)| r1 == r2);
+            let same_column = kana::column(g)
+                .zip(kana::column(a))
+                .map_or(false, |(c1, c2)| c1 == c2);
 
             if same_row && same_column {
                 tiles[i] = Tile::SameRowColumn;
