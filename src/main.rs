@@ -50,9 +50,11 @@ fn word_tiles(guess: &str, answer: &str) -> [Tile; WORD_LEN] {
     }
 
     for (i, g) in guess.chars().enumerate() {
-        if let Some(found_idx) = chars.iter().position(|c| *c == g) {
-            tiles[i] = Tile::Present;
-            chars.swap_remove(found_idx);
+        if tiles[i] == Tile::Absent {
+            if let Some(found_idx) = chars.iter().position(|c| *c == g) {
+                tiles[i] = Tile::Present;
+                chars.swap_remove(found_idx);
+            }
         }
     }
 
@@ -190,6 +192,14 @@ mod tests {
         assert_eq!(
             word_tiles("かいぶつ", "こしょう"),
             [SameRow, SameColumn, Absent, SameColumn]
+        );
+        assert_eq!(
+            word_tiles("だいざい", "たいだん"),
+            [Present, Correct, SameColumn, Absent]
+        );
+        assert_eq!(
+            word_tiles("だいたい", "たいたい"),
+            [SameRowColumn, Correct, Correct, Correct]
         );
     }
 }
