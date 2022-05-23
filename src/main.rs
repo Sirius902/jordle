@@ -6,7 +6,6 @@ use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
 mod kana;
 
-const ANSWERS_FILE: &str = include_str!("../assets/japanese_answers.txt");
 const WORDS_FILE: &str = include_str!("../assets/japanese_words.txt");
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
@@ -20,11 +19,6 @@ enum Tile {
 }
 
 fn main() {
-    let answers = ANSWERS_FILE.lines().collect::<HashSet<_>>();
-    for word in answers.iter() {
-        assert_eq!(word.chars().count(), 4);
-    }
-
     let words = WORDS_FILE.lines().collect::<HashSet<_>>();
     for word in words.iter() {
         assert_eq!(word.chars().count(), 4);
@@ -32,7 +26,7 @@ fn main() {
 
     let entropy = words
         .par_iter()
-        .map(|word| EntropyEntry::new(word, word_entropy(word, &answers)))
+        .map(|word| EntropyEntry::new(word, word_entropy(word, &words)))
         .collect::<BinaryHeap<_>>();
 
     for EntropyEntry { word, entropy } in entropy.iter().take(10) {
