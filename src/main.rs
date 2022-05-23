@@ -114,7 +114,7 @@ impl<'a> EntropyEntry<'a> {
 
 impl Ord for EntropyEntry<'_> {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.partial_cmp(&other).expect("Failed to compare entropy")
+        self.partial_cmp(other).expect("Failed to compare entropy")
     }
 }
 
