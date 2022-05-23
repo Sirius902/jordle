@@ -1,5 +1,5 @@
 use std::cmp::{Ord, Ordering, PartialEq, PartialOrd};
-use std::collections::{BinaryHeap, HashMap, HashSet};
+use std::collections::{BTreeSet, HashMap};
 use std::hash::Hash;
 
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
@@ -20,7 +20,7 @@ enum Tile {
 }
 
 fn main() {
-    let words = WORDS_FILE.lines().collect::<HashSet<_>>();
+    let words = WORDS_FILE.lines().collect::<BTreeSet<_>>();
     for word in words.iter() {
         assert_eq!(word.chars().count(), WORD_LEN);
     }
@@ -28,7 +28,7 @@ fn main() {
     let entropy = words
         .par_iter()
         .map(|word| EntropyEntry::new(word, word_entropy(word, &words)))
-        .collect::<BinaryHeap<_>>();
+        .collect::<BTreeSet<_>>();
 
     for EntropyEntry { word, entropy } in entropy.iter().take(10) {
         println!("{:.3} {}", entropy, word);
@@ -44,15 +44,6 @@ fn word_tiles(guess: &str, answer: &str) -> [Tile; WORD_LEN] {
             tiles[i] = Tile::Correct;
 
             if let Some(found_idx) = chars.iter().position(|c| *c == g) {
-                chars.swap_remove(found_idx);
-            }
-        }
-    }
-
-    for (i, g) in guess.chars().enumerate() {
-        if tiles[i] == Tile::Absent {
-            if let Some(found_idx) = chars.iter().position(|c| *c == g) {
-                tiles[i] = Tile::Present;
                 chars.swap_remove(found_idx);
             }
         }
@@ -77,10 +68,19 @@ fn word_tiles(guess: &str, answer: &str) -> [Tile; WORD_LEN] {
         }
     }
 
+    for (i, g) in guess.chars().enumerate() {
+        if tiles[i] != Tile::Correct && tiles[i] != Tile::SameRowColumn {
+            if let Some(found_idx) = chars.iter().position(|c| *c == g) {
+                tiles[i] = Tile::Present;
+                chars.swap_remove(found_idx);
+            }
+        }
+    }
+
     tiles
 }
 
-fn word_entropy(guess: &str, word_list: &HashSet<&str>) -> f64 {
+fn word_entropy(guess: &str, word_list: &BTreeSet<&str>) -> f64 {
     let mut counter = HashMap::new();
 
     for word in word_list {
@@ -120,7 +120,7 @@ impl Ord for EntropyEntry<'_> {
 
 impl PartialOrd for EntropyEntry<'_> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self.entropy.partial_cmp(&other.entropy)
+        other.entropy.partial_cmp(&self.entropy)
     }
 }
 
@@ -195,7 +195,7 @@ mod tests {
         );
         assert_eq!(
             word_tiles("だいざい", "たいだん"),
-            [Present, Correct, SameColumn, Absent]
+            [SameRowColumn, Correct, SameColumn, Absent]
         );
         assert_eq!(
             word_tiles("だいたい", "たいたい"),
