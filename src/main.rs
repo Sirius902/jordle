@@ -20,16 +20,19 @@ enum Tile {
 }
 
 fn main() {
-    let mut words = HashSet::new();
-
-    for word in ANSWERS_FILE.lines().chain(WORDS_FILE.lines()) {
+    let answers = ANSWERS_FILE.lines().collect::<HashSet<_>>();
+    for word in answers.iter() {
         assert_eq!(word.chars().count(), 4);
-        words.insert(word);
+    }
+
+    let words = WORDS_FILE.lines().collect::<HashSet<_>>();
+    for word in words.iter() {
+        assert_eq!(word.chars().count(), 4);
     }
 
     let entropy = words
         .par_iter()
-        .map(|word| EntropyEntry::new(word, word_entropy(word, &words)))
+        .map(|word| EntropyEntry::new(word, word_entropy(word, &answers)))
         .collect::<BinaryHeap<_>>();
 
     for EntropyEntry { word, entropy } in entropy.iter().take(10) {
