@@ -7,6 +7,7 @@ use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 mod kana;
 
 const WORDS_FILE: &str = include_str!("../assets/japanese_words.txt");
+const WORD_LEN: usize = 4;
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
 enum Tile {
@@ -21,7 +22,7 @@ enum Tile {
 fn main() {
     let words = WORDS_FILE.lines().collect::<HashSet<_>>();
     for word in words.iter() {
-        assert_eq!(word.chars().count(), 4);
+        assert_eq!(word.chars().count(), WORD_LEN);
     }
 
     let entropy = words
@@ -34,8 +35,8 @@ fn main() {
     }
 }
 
-fn word_tiles(guess: &str, answer: &str) -> [Tile; 4] {
-    let mut tiles = [Tile::Absent; 4];
+fn word_tiles(guess: &str, answer: &str) -> [Tile; WORD_LEN] {
+    let mut tiles = [Tile::Absent; WORD_LEN];
     let mut chars = answer.chars().collect::<Vec<_>>();
 
     for (i, (g, a)) in guess.chars().zip(answer.chars()).enumerate() {
