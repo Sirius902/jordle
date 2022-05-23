@@ -129,3 +129,67 @@ impl PartialEq for EntropyEntry<'_> {
 }
 
 impl Eq for EntropyEntry<'_> {}
+
+#[cfg(test)]
+mod tests {
+    use crate::*;
+    use Tile::*;
+
+    #[test]
+    fn correct_absent() {
+        assert_eq!(word_tiles("ほしがる", "ほしがる"), [Correct; WORD_LEN]);
+        assert_eq!(
+            word_tiles("かたまる", "かたよる"),
+            [Correct, Correct, Absent, Correct]
+        );
+        assert_eq!(
+            word_tiles("かたまる", "かたよる"),
+            [Correct, Correct, Absent, Correct]
+        );
+        assert_eq!(
+            word_tiles("かんじん", "かんぱい"),
+            [Correct, Correct, Absent, Absent]
+        );
+        assert_eq!(
+            word_tiles("ともしび", "かたかな"),
+            [Absent, Absent, Absent, Absent]
+        );
+    }
+
+    #[test]
+    fn correct_present() {
+        assert_eq!(word_tiles("かんせい", "せいかん"), [Present; WORD_LEN]);
+        assert_eq!(
+            word_tiles("せいかい", "かいせい"),
+            [Present, Correct, Present, Correct]
+        );
+        assert_eq!(
+            word_tiles("あたなら", "あらたな"),
+            [Correct, Present, Present, Present]
+        );
+    }
+
+    #[test]
+    fn row_column() {
+        assert_eq!(
+            word_tiles("げんざい", "けんざい"),
+            [SameRowColumn, Correct, Correct, Correct]
+        );
+        assert_eq!(
+            word_tiles("けってい", "かつどう"),
+            [SameRow, SameRowColumn, SameRow, SameRow]
+        );
+        assert_eq!(
+            word_tiles("はっけん", "はつげん"),
+            [Correct, SameRowColumn, SameRowColumn, Correct]
+        );
+        assert_eq!(
+            word_tiles("とつぜん", "こいぶみ"),
+            [SameColumn, Absent, Absent, Absent]
+        );
+        assert_eq!(
+            word_tiles("かいぶつ", "こしょう"),
+            [SameRow, SameColumn, Absent, SameColumn]
+        );
+    }
+}
