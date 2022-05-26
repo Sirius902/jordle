@@ -1,5 +1,5 @@
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
-pub enum Row {
+pub enum Consonant {
     A,
     Ka,
     Sa,
@@ -13,7 +13,7 @@ pub enum Row {
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
-pub enum Column {
+pub enum Vowel {
     A,
     I,
     U,
@@ -21,31 +21,71 @@ pub enum Column {
     O,
 }
 
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
+pub enum CloseStatus {
+    Consonant,
+    Vowel,
+    Close,
+}
+
 #[rustfmt::skip]
-pub fn row(c: char) -> Option<Row> {
+pub fn consonant(c: char) -> Option<Consonant> {
     match c {
-        'あ' | 'い' | 'う' | 'え' | 'お' | 'ぁ' | 'ぃ' | 'ぅ' | 'ぇ' | 'ぉ' => Some(Row::A),
-        'か' | 'き' | 'く' | 'け' | 'こ' | 'が' | 'ぎ' | 'ぐ' | 'げ' | 'ご' => Some(Row::Ka),
-        'さ' | 'し' | 'す' | 'せ' | 'そ' | 'ざ' | 'じ' | 'ず' | 'ぜ' | 'ぞ' => Some(Row::Sa),
-        'た' | 'ち' | 'つ' | 'て' | 'と' | 'だ' | 'ぢ' | 'づ' | 'で' | 'ど' | 'っ' => Some(Row::Ta),
-        'な' | 'に' | 'ぬ' | 'ね' | 'の' => Some(Row::Na),
-        'は' | 'ひ' | 'ふ' | 'へ' | 'ほ' | 'ば' | 'び' | 'ぶ' | 'べ' | 'ぼ' | 'ぱ' | 'ぴ' | 'ぷ' | 'ぺ' | 'ぽ' => Some(Row::Ha),
-        'ま' | 'み' | 'む' | 'め' | 'も' => Some(Row::Ma),
-        'や' | 'ゆ' | 'よ' | 'ゃ' | 'ゅ' | 'ょ' => Some(Row::Ya),
-        'ら' | 'り' | 'る' | 'れ' | 'ろ' => Some(Row::Ra),
-        'わ' | 'を' => Some(Row::Wa),
+        'ぁ' ..= 'お' => Some(Consonant::A),
+        'か' ..= 'ご' => Some(Consonant::Ka),
+        'さ' ..= 'ぞ' => Some(Consonant::Sa),
+        'た' ..= 'ど' => Some(Consonant::Ta),
+        'な' ..= 'の' => Some(Consonant::Na),
+        'は' ..= 'ぽ' => Some(Consonant::Ha),
+        'ま' ..= 'も' => Some(Consonant::Ma),
+        'ゃ' ..= 'よ' => Some(Consonant::Ya),
+        'ら' ..= 'ろ' => Some(Consonant::Ra),
+        'わ' | 'を' => Some(Consonant::Wa),
         _ => None,
     }
 }
 
 #[rustfmt::skip]
-pub fn column(c: char) -> Option<Column> {
+pub fn vowel(c: char) -> Option<Vowel> {
     match c {
-        'あ' | 'か' | 'さ' | 'た' | 'な' | 'は' | 'ま' | 'や' | 'ら' | 'わ' | 'ぁ' | 'が' | 'ざ' | 'だ' | 'ば' | 'ぱ' | 'ゃ' => Some(Column::A),
-        'い' | 'き' | 'し' | 'ち' | 'に' | 'ひ' | 'み' | 'り' | 'ぃ' | 'ぎ' | 'じ' | 'ぢ' | 'び' | 'ぴ' => Some(Column::I),
-        'う' | 'く' | 'す' | 'つ' | 'ぬ' | 'ふ' | 'む' | 'ゆ' | 'る' | 'ぅ' | 'ぐ' | 'ず' | 'づ' | 'っ' | 'ぶ' | 'ぷ' | 'ゅ' | 'ゔ' => Some(Column::U),
-        'え' | 'け' | 'せ' | 'て' | 'ね' | 'へ' | 'め' | 'れ' | 'ぇ' | 'げ' | 'ぜ' | 'で' | 'べ' | 'ぺ' => Some(Column::E),
-        'お' | 'こ' | 'そ' | 'と' | 'の' | 'ほ' | 'も' | 'よ' | 'ろ' | 'を' | 'ぉ' | 'ご' | 'ぞ' | 'ど' | 'ぼ' | 'ぽ' | 'ょ' => Some(Column::O),
+        'ぁ' | 'あ' | 'か' | 'さ' | 'た' | 'な' | 'は' | 'ま' | 'や' | 'ら' | 'わ' | 'が' | 'ざ' | 'だ' | 'ば' | 'ぱ' | 'ゃ' => Some(Vowel::A),
+        'ぃ' | 'い' | 'き' | 'し' | 'ち' | 'に' | 'ひ' | 'み' | 'り' | 'ぎ' | 'じ' | 'ぢ' | 'び' | 'ぴ' => Some(Vowel::I),
+        'ぅ' | 'う' | 'く' | 'す' | 'つ' | 'ぬ' | 'ふ' | 'む' | 'ゆ' | 'る' | 'ゔ' | 'ぐ' | 'ず' | 'づ' | 'っ' | 'ぶ' | 'ぷ' | 'ゅ' => Some(Vowel::U),
+        'ぇ' | 'え' | 'け' | 'せ' | 'て' | 'ね' | 'へ' | 'め' | 'れ' | 'げ' | 'ぜ' | 'で' | 'べ' | 'ぺ' => Some(Vowel::E),
+        'ぉ' | 'お' | 'こ' | 'そ' | 'と' | 'の' | 'ほ' | 'も' | 'よ' | 'ろ' | 'を' | 'ご' | 'ぞ' | 'ど' | 'ぼ' | 'ぽ' | 'ょ' => Some(Vowel::O),
         _ => None,
+    }
+}
+
+#[rustfmt::skip]
+pub fn close_status(c1: char, c2: char) -> Option<CloseStatus> {
+    if let Some((cons1, cons2)) = consonant(c1).zip(consonant(c2)) {
+        if let Some((vow1, vow2)) = vowel(c1).zip(vowel(c2)) {
+            match (cons1 == cons2, vow1 == vow2) {
+                (true, true) => return Some(CloseStatus::Close),
+                (true, false) => return Some(CloseStatus::Consonant),
+                (false, true) => return Some(CloseStatus::Vowel),
+                _ => {},
+            }
+        }
+    }
+
+    let close_vu = |c: char| matches!(c, 'う' | 'ぅ');
+
+    if c1 == 'ゔ' && close_vu(c2) || c2 == 'ゔ' && close_vu(c1) {
+        Some(CloseStatus::Close)
+    } else {
+        None
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::kana::CloseStatus::*;
+    use crate::kana::*;
+
+    #[test]
+    fn close() {
+        assert_eq!(close_status('ゔ', 'う'), Some(Close));
     }
 }

@@ -1,3 +1,4 @@
+use kana::CloseStatus;
 use std::cmp::{Ord, Ordering, PartialEq, PartialOrd};
 use std::collections::{BTreeSet, HashMap};
 use std::hash::Hash;
@@ -14,9 +15,9 @@ enum Tile {
     Absent,
     Present,
     Correct,
-    SameRow,
-    SameColumn,
-    SameRowColumn,
+    Consonant,
+    Vowel,
+    Close,
 }
 
 fn main() {
@@ -51,25 +52,24 @@ fn word_tiles(guess: &str, answer: &str) -> [Tile; WORD_LEN] {
 
     for (i, (g, a)) in guess.chars().zip(answer.chars()).enumerate() {
         if tiles[i] == Tile::Absent {
-            let same_row = kana::row(g)
-                .zip(kana::row(a))
-                .map_or(false, |(r1, r2)| r1 == r2);
-            let same_column = kana::column(g)
-                .zip(kana::column(a))
-                .map_or(false, |(c1, c2)| c1 == c2);
-
-            if same_row && same_column {
-                tiles[i] = Tile::SameRowColumn;
-            } else if same_row {
-                tiles[i] = Tile::SameRow;
-            } else if same_column {
-                tiles[i] = Tile::SameColumn;
+            if let Some(close_status) = kana::close_status(g, a) {
+                match close_status {
+                    CloseStatus::Close => {
+                        tiles[i] = Tile::Close;
+                    }
+                    CloseStatus::Consonant => {
+                        tiles[i] = Tile::Consonant;
+                    }
+                    CloseStatus::Vowel => {
+                        tiles[i] = Tile::Vowel;
+                    }
+                }
             }
         }
     }
 
     for (i, g) in guess.chars().enumerate() {
-        if tiles[i] != Tile::Correct && tiles[i] != Tile::SameRowColumn {
+        if tiles[i] != Tile::Correct && tiles[i] != Tile::Close {
             if let Some(found_idx) = chars.iter().position(|c| *c == g) {
                 tiles[i] = Tile::Present;
                 chars.swap_remove(found_idx);
@@ -172,34 +172,34 @@ mod tests {
     }
 
     #[test]
-    fn row_column() {
+    fn consonant_vowel() {
         assert_eq!(
             word_tiles("げんざい", "けんざい"),
-            [SameRowColumn, Correct, Correct, Correct]
+            [Close, Correct, Correct, Correct]
         );
         assert_eq!(
             word_tiles("けってい", "かつどう"),
-            [SameRow, SameRowColumn, SameRow, SameRow]
+            [Consonant, Close, Consonant, Consonant]
         );
         assert_eq!(
             word_tiles("はっけん", "はつげん"),
-            [Correct, SameRowColumn, SameRowColumn, Correct]
+            [Correct, Close, Close, Correct]
         );
         assert_eq!(
             word_tiles("とつぜん", "こいぶみ"),
-            [SameColumn, Absent, Absent, Absent]
+            [Vowel, Absent, Absent, Absent]
         );
         assert_eq!(
             word_tiles("かいぶつ", "こしょう"),
-            [SameRow, SameColumn, Absent, SameColumn]
+            [Consonant, Vowel, Absent, Vowel]
         );
         assert_eq!(
             word_tiles("だいざい", "たいだん"),
-            [SameRowColumn, Correct, SameColumn, Absent]
+            [Close, Correct, Vowel, Absent]
         );
         assert_eq!(
             word_tiles("だいたい", "たいたい"),
-            [SameRowColumn, Correct, Correct, Correct]
+            [Close, Correct, Correct, Correct]
         );
     }
 }
