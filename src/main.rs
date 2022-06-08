@@ -1,5 +1,4 @@
 use kana::CloseStatus;
-use std::cmp::{Ord, Ordering, PartialEq, PartialOrd};
 use std::collections::{BTreeSet, HashMap};
 use std::hash::Hash;
 
@@ -26,12 +25,18 @@ fn main() {
         assert_eq!(word.chars().count(), WORD_LEN);
     }
 
-    let entropy = words
-        .par_iter()
-        .map(|word| EntropyEntry::new(word, word_entropy(word, &words)))
-        .collect::<BTreeSet<_>>();
+    let entropy = {
+        let mut es = words
+            .par_iter()
+            .map(|word| (word, word_entropy(word, &words)))
+            .collect::<Vec<_>>();
 
-    for EntropyEntry { word, entropy } in entropy.iter().take(10) {
+        es.sort_by(|(_, e1), (_, e2)| e1.partial_cmp(e2).expect("Failed to compare entropy"));
+
+        es
+    };
+
+    for (word, entropy) in entropy.iter().rev().take(10) {
         println!("{:.3} {}", entropy, word);
     }
 }
@@ -100,37 +105,6 @@ fn word_entropy(guess: &str, word_list: &BTreeSet<&str>) -> f64 {
 
     entropy
 }
-
-struct EntropyEntry<'a> {
-    word: &'a str,
-    entropy: f64,
-}
-
-impl<'a> EntropyEntry<'a> {
-    fn new(word: &'a str, entropy: f64) -> Self {
-        EntropyEntry { word, entropy }
-    }
-}
-
-impl Ord for EntropyEntry<'_> {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.partial_cmp(other).expect("Failed to compare entropy")
-    }
-}
-
-impl PartialOrd for EntropyEntry<'_> {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        other.entropy.partial_cmp(&self.entropy)
-    }
-}
-
-impl PartialEq for EntropyEntry<'_> {
-    fn eq(&self, other: &Self) -> bool {
-        self.entropy == other.entropy
-    }
-}
-
-impl Eq for EntropyEntry<'_> {}
 
 #[cfg(test)]
 mod tests {
